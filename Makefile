@@ -9,7 +9,7 @@ main.wasm: main.c
 		-Wl,--strip-all \
 		-o main.wasm
 	wasm-opt --asyncify -Oz main.wasm -o main.wasm
-	sh -c 'export BLOB=$$(cat main.wasm | base64 -w 0); envsubst < template.js > opt.js'
+	sh -c 'export BLOB=$$(cat main.wasm | base64 -w 0); envsubst < template.html > index.html'
 	#uglifyjs opt.js -o opt.js
 
 clean:
