@@ -23,7 +23,9 @@ var HEAPF32 = new Float32Array(memory.buffer);
 var HEAPF64 = new Float64Array(memory.buffer);
 
 let dec = new TextDecoder( "utf-8" );
-function cstos(ptr, len) {
+function cstos(ptr) {
+	var len;
+	for(len = 0|0; HEAPU8[ptr+len] != 0|0; len++);
 	return dec.decode(HEAPU8.subarray(ptr, ptr+len));
 }
 
