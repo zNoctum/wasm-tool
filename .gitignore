@@ -1,3 +1,4 @@
 *.wasm
 *.wat
+opt.js
 index.html

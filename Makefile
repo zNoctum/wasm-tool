@@ -1,3 +1,6 @@
+index.html: opt.js
+	sh -c 'export JS_CODE=$$(cat opt.js); envsubst < template.html > $@'
+
 main.wasm: main.c
 	clang main.c -nostdlib --target=wasm32 \
 		-fvisibility=hidden \
@@ -11,8 +14,10 @@ main.wasm: main.c
 		-Wl,--export-dynamic \
 		-o main.wasm
 	wasm-opt --asyncify -Oz main.wasm -o main.wasm
-	sh -c 'export BLOB=$$(cat main.wasm | base64 -w 0); envsubst < template.html > index.html'
-	#uglifyjs opt.js -o opt.js
+
+opt.js: template.js main.wasm
+	sh -c 'export BLOB=$$(cat main.wasm | base64 -w 0); envsubst < template.js > $@'
+	terser opt.js -c toplevel -o opt.js
 
 clean:
-	rm main.wasm opt.js
+	rm main.wasm opt.js index.html

@@ -1,15 +1,12 @@
 extern unsigned char __heap_base;
 unsigned int bump_pointer = (unsigned int)&__heap_base;
-#define EXPORT __attribute__((visibility("default")))
-
-void draw_line(int, int, int, int);
-void clear();
-void sleep(unsigned int ms);
+#define WASM_EXPORT __attribute__((visibility("default")))
+#define WASM_IMPORT(module, name) __attribute__((import_module(module), import_name(name))
 
 void print(int);
-void printc(char*, int);
+void printc(char*);
 
-EXPORT void* malloc(unsigned long size) {
+WASM_EXPORT void* malloc(unsigned long size) {
 	unsigned int ptr = bump_pointer;
 	bump_pointer += size;
 	return (void *)ptr;
@@ -17,7 +14,7 @@ EXPORT void* malloc(unsigned long size) {
 
 void free(void* ptr) {  }
 
-EXPORT int sum(int a[], int len) {
+WASM_EXPORT int sum(int a[], int len) {
 	int sum = 0;
 	for(int i = 0; i < len; i++) {
 		sum += a[i];
@@ -25,12 +22,7 @@ EXPORT int sum(int a[], int len) {
 	return sum;
 }
 
-EXPORT int main() {
-	while(1)
-		for(int i = 0; i < 200; i++) {
-			clear();
-			draw_line(0, i, 200, i);
-			sleep(100);
-		}
+WASM_EXPORT int main() {
+	printc("test");
 	return 0;
 }
