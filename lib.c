@@ -10,8 +10,25 @@ union header {
 	char align_stub[16];
 };
 
+//-----------------------------------SYSCALL------------------------------------
 extern unsigned char __heap_base;
-unsigned int sbrk_ptr = (unsigned int)&__heap_base;
+unsigned long sbrk_ptr = (unsigned int)&__heap_base;
+
+int
+brk(unsigned long addr)
+{
+	sbrk_ptr = addr;
+	return 0;
+}
+
+void*
+sbrk(unsigned long inc)
+{
+	unsigned long tmp = sbrk_ptr;
+	sbrk_ptr += inc;
+	return (void *)tmp;
+}
+//------------------------------------------------------------------------------
 union header *head, *tail;
 
 void*
@@ -27,8 +44,7 @@ malloc(unsigned long size)
 			return (void *)(header + 1);
 		header = header->s.next;
 	}
-	block = (void *)sbrk_ptr;
-	sbrk_ptr = sizeof(union header) + size;
+	block = sbrk(sizeof(union header) + size);
 
 	header = block;
 	header->s.size = size;
@@ -51,7 +67,7 @@ void free(void *block)
 		return;
 	header = (union header*)block - 1;
 
-	if((unsigned int)block + header->s.size == sbrk_ptr) {
+	if((unsigned int)block + header->s.size == (unsigned int)sbrk(0)) {
 		if(head == tail) {
 			head = tail = NULL;
 		}
@@ -65,7 +81,7 @@ void free(void *block)
 				tmp = tmp->s.next;
 			}
 		}
-		sbrk_ptr -= sizeof(union header) + header->s.size;
+		sbrk(-sizeof(union header) - header->s.size);
 		return;
 	}
 	header->s.is_free = 1;
