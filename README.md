@@ -1,2 +1,2 @@
 # wasm-tool
-requires `uglify-es` `binaryen` and  `clang`+`lld`
+requires `npm terser` `binaryen` and  `clang`+`lld`
