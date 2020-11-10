@@ -38,4 +38,14 @@ const obj = {
 	wasmExports = instance.exports;
 	console.log(instance);
 	instance.exports.main();
+	
+	const jsArray = [1, 2, 3, 4, 5];
+	const cArrayPointer = instance.exports.malloc(jsArray.length * 4);
+	const cArray = new Uint32Array(
+		memory.buffer,
+		cArrayPointer,
+		jsArray.length
+	);
+	cArray.set(jsArray);
+	console.log(instance.exports.sum(cArrayPointer, cArray.length));	
 })();
