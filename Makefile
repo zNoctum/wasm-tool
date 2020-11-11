@@ -1,7 +1,7 @@
 index.html: opt.js
 	sh -c 'export JS_CODE=$$(cat opt.js); envsubst < template.html > $@'
 
-main.wasm: main.c lib.c
+main.wasm: main.c lib.c string.c
 	clang main.c -nostdlib --target=wasm32 \
 		-fvisibility=hidden \
 		-flto \

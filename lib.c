@@ -1,3 +1,5 @@
+#include "string.c"
+
 #define WASM_EXPORT __attribute__((visibility("default")))
 #define NULL 0
 
@@ -13,13 +15,6 @@ union header {
 //-----------------------------------SYSCALL------------------------------------
 extern unsigned char __heap_base;
 unsigned long sbrk_ptr = (unsigned int)&__heap_base;
-
-int
-brk(unsigned long addr)
-{
-	sbrk_ptr = addr;
-	return 0;
-}
 
 void*
 sbrk(unsigned long inc)
@@ -40,8 +35,10 @@ malloc(unsigned long size)
 		return NULL;
 	header = head;
 	while(header) {
-		if (header->s.is_free && header->s.size >= size)
-			return (void *)(header + 1);
+		if (header->s.is_free && header->s.size >= size) {
+			memset((void *)(header + 1), 0x00, header->s.size);
+			return (void*)(header + 1);
+		}
 		header = header->s.next;
 	}
 	block = sbrk(sizeof(union header) + size);
@@ -55,7 +52,9 @@ malloc(unsigned long size)
 	if (tail)
 		tail->s.next = header;
 	tail = header;
-	return (void*)(header + 1);
+
+	memset((void *)(header + 1), 0x00, header->s.size);
+	return (void *)(header + 1);
 }
 
 void free(void *block)
@@ -85,4 +84,24 @@ void free(void *block)
 		return;
 	}
 	header->s.is_free = 1;
+}
+
+void*
+realloc(void *block, unsigned long size)
+{
+	union header *header = ((union header *) block) -1;
+	void *new_block;
+
+	if(size <= header->s.size)
+		return block;
+	if(header == tail) {
+		sbrk(size - header->s.size);
+		header->s.size = size;
+		return block;	
+	}
+	free(block);
+	new_block = malloc(size);
+	memcpy(block, new_block, header->s.size);
+	return new_block;
+
 }
