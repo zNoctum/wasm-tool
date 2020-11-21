@@ -1,4 +1,5 @@
 #include "string.c"
+#include "syscall.c"
 
 #define WASM_EXPORT __attribute__((visibility("default")))
 #define NULL 0
@@ -9,21 +10,9 @@ union header {
 		unsigned char is_free;
 		union header *next;
 	} s;
-	char align_stub[16];
+	char align_stub[16]; // aligining to 8bytes so you can properly use HEAPF64
 };
 
-//-----------------------------------SYSCALL------------------------------------
-extern unsigned char __heap_base;
-unsigned long sbrk_ptr = (unsigned int)&__heap_base;
-
-void*
-sbrk(unsigned long inc)
-{
-	unsigned long tmp = sbrk_ptr;
-	sbrk_ptr += inc;
-	return (void *)tmp;
-}
-//------------------------------------------------------------------------------
 union header *head, *tail;
 
 void*
@@ -35,7 +24,7 @@ malloc(unsigned long size)
 		return NULL;
 	header = head;
 	while(header) {
-		if (header->s.is_free && header->s.size >= size) {
+		if(header->s.is_free && header->s.size >= size) {
 			memset((void *)(header + 1), 0x00, header->s.size);
 			return (void*)(header + 1);
 		}
@@ -80,7 +69,7 @@ void free(void *block)
 				tmp = tmp->s.next;
 			}
 		}
-		sbrk(-sizeof(union header) - header->s.size);
+		sbrk(-sizeof(union header) -header->s.size);
 		return;
 	}
 	header->s.is_free = 1;
@@ -103,5 +92,4 @@ realloc(void *block, unsigned long size)
 	new_block = malloc(size);
 	memcpy(block, new_block, header->s.size);
 	return new_block;
-
 }

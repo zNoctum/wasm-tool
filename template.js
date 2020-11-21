@@ -32,6 +32,7 @@ const obj = {
 		printc: (str) => { console.log(cstos(str)) },
 	}
 };
+
 (async () => {
 	let {instance} = await WebAssembly.instantiate(array, obj);
 	
