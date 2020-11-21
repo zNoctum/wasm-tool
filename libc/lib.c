@@ -4,6 +4,8 @@
 #define WASM_EXPORT __attribute__((visibility("default")))
 #define NULL 0
 
+typedef unsigned long size_t;
+
 union header {
 	struct {
 		unsigned int size;
@@ -16,7 +18,7 @@ union header {
 union header *head, *tail;
 
 void*
-malloc(unsigned long size)
+malloc(size_t size)
 {
 	void *block;
 	union header *header;
@@ -76,7 +78,7 @@ void free(void *block)
 }
 
 void*
-realloc(void *block, unsigned long size)
+realloc(void *block, size_t size)
 {
 	union header *header = ((union header *) block) -1;
 	void *new_block;
@@ -92,4 +94,9 @@ realloc(void *block, unsigned long size)
 	new_block = malloc(size);
 	memcpy(block, new_block, header->s.size);
 	return new_block;
+}
+
+void*
+calloc(size_t nitems, size_t item_size) {
+	return malloc(nitems * item_size)
 }
