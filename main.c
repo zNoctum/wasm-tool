@@ -12,7 +12,7 @@ WASM_EXPORT int sum(int a[], int len) {
 	return sum;
 }
 
-WASM_EXPORT int main() {
+int main() {
 	printc("test");
 	return 0;
 }

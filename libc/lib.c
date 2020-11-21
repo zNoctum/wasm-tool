@@ -28,7 +28,15 @@ malloc(size_t size)
 	while(header) {
 		if(header->s.is_free && header->s.size >= size) {
 			memset((void *)(header + 1), 0x00, header->s.size);
-			return (void*)(header + 1);
+			return (void *)(header + 1);
+		}
+		else if(header->s.is_free && header->s.next->s.is_free &&
+				(header->s.size + sizeof(union header) + header->s.next->s.size >= size)) {
+			size_t size = header->s.size + sizeof(union header) + header->s.next->s.size;
+			header->s.next = header->s.next->s.next;
+			memset((void *)(header + 1), 0x00, size);
+			return (void *)(header + 1);
+
 		}
 		header = header->s.next;
 	}
@@ -51,7 +59,6 @@ malloc(size_t size)
 void free(void *block)
 {
 	union header *header, *tmp;
-	void *programbreak;
 
 	if(!block)
 		return;
@@ -60,8 +67,7 @@ void free(void *block)
 	if((unsigned int)block + header->s.size == (unsigned int)sbrk(0)) {
 		if(head == tail) {
 			head = tail = NULL;
-		}
-		else {
+		} else {
 			tmp = head;
 			while(tmp) {
 				if(tmp->s.next == tail) {
@@ -98,5 +104,5 @@ realloc(void *block, size_t size)
 
 void*
 calloc(size_t nitems, size_t item_size) {
-	return malloc(nitems * item_size)
+	return malloc(nitems * item_size);
 }

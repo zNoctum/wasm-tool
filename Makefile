@@ -14,7 +14,8 @@ main.wasm: main.c libc/*
 		-Wl,--export-dynamic \
 		-o main.wasm
 	wasm2wat main.wasm -o main.wat
-	wasm-opt --asyncify -Oz main.wasm -o main.wasm
+	wasm-opt -Oz main.wasm -o main.wasm
+	#wasm-opt --asyncify -Oz main.wasm -o main.wasm
 
 opt.js: template.js main.wasm
 	sh -c 'export BLOB=$$(cat main.wasm | base64 -w 0); envsubst < template.js > $@'
