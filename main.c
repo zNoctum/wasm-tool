@@ -1,4 +1,4 @@
-#include "libc/lib.c"
+#include "libc/alloc.h"
 #define WASM_EXPORT __attribute__((visibility("default")))
 /*
 void print(int);
