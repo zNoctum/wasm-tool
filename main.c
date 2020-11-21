@@ -1,6 +1,6 @@
-#include "libc/lib.c"
+#include "libc/alloc.h"
 #define WASM_EXPORT __attribute__((visibility("default")))
-
+/*
 void print(int);
 void printc(char*, ...);
 
@@ -15,4 +15,4 @@ WASM_EXPORT int sum(int a[], int len) {
 int main() {
 	printc("test");
 	return 0;
-}
+}*/
