@@ -1,5 +1,5 @@
-index.html: opt.js
-	sh -c 'export JS_CODE=$$(cat opt.js); envsubst < template.html > $@'
+index.html: out.js
+	sh -c 'export JS_CODE=$$(cat out.js); envsubst < template.html > $@'
 
 main.wasm: main.c libc/*
 	clang main.c -O3 -nostdlib --target=wasm32 \
@@ -17,9 +17,7 @@ main.wasm: main.c libc/*
 	wasm-opt -O4 main.wasm -o main.wasm
 	#wasm-opt --asyncify -Oz main.wasm -o main.wasm
 
-opt.js: template.js main.wasm
+out.js: template.js main.wasm
 	sh -c 'export BLOB=$$(cat main.wasm | base64 -w 0); envsubst < template.js > $@'
-	terser opt.js -c toplevel -o opt.js
-
 clean:
 	rm main.wa* opt.js index.html
